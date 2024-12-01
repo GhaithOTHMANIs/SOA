@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d2a4869f-9435-4380-9632-1c17e04f72a7">
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="0f47c169-f149-4818-8574-5c01435c4753" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="b184333d-656d-4bb0-aea0-08671179b2d9" >
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="28ffe049-15ae-423c-a7d7-2411c27be768" >
+		<wsc:connection wsdlLocation="http://localhost:3001/UserContentService?wsdl" service="MyService" port="MyServicePort" address="http://localhost:3001/UserContentService" soapVersion="SOAP12"/>
+	</wsc:config>
+	<flow name="cms_bus_login" doc:id="d5479ddf-d9cf-46b8-8736-ac30d7c107a3" >
+		<http:listener doc:name="Listener" doc:id="bc39d7a1-d077-4a83-8d35-da85b24666b9" config-ref="HTTP_Listener_config" path="/login"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="c21dadeb-fd0f-477e-8474-ab9418f42ea3" variableName="loginPayload"/>
+		<ee:transform doc:name="Transform Message" doc:id="fb054313-226b-47a1-97ea-ccbf5781e834" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	login: payload.login,
+	password: payload.password
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger message="Request body to be sent:" level="INFO" />
+		<http:request method="POST" doc:name="Request" doc:id="1c1bdec7-2241-4e23-a59f-b08ab4158d34" url="http://localhost:8084/service/login">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+	</flow>
+	<flow name="cms_bus_add_content" doc:id="d9e504aa-2d29-4d69-9a30-2d5441e1c2d5" >
+		<http:listener doc:name="Listener" doc:id="e6b80c00-5cf8-4c2a-97b1-b6d19c2cbe2a" config-ref="HTTP_Listener_config1" path="/content" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="e0cd86c5-2128-44a6-b60e-1eca789a0223" variableName="addContentPayload" />
+		<ee:transform doc:name="Transform Message" doc:id="31bbe38b-b49d-4910-8c9e-1c75ded7871d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	php_code: payload.php_code,
+	user_id: payload.user_id
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="c0871479-75b0-4d01-9e17-2c3569b8b161" message="Request body to be sent: #[ payload]" />
+		<http:request method="POST" doc:name="Request" doc:id="43f42348-a8fa-4ede-91dd-22200c117e6c" url="http://localhost:3000/api/content" >
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+	</flow>
+	<flow name="cms_bus_get_content" doc:id="82cb16b7-e81b-487a-a0dd-1c566aa933b3" >
+		<http:listener doc:name="Listener" doc:id="17495d93-13bd-4511-9619-b3b48c8f8d43" config-ref="HTTP_Listener_config2" path="content"/>
+		<ee:transform doc:name="Transform Message" doc:id="e6401c6b-efea-45cb-8b4d-f1de7ce05af4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.example.com/UserContent
+---
+{
+	ns0#GetUserContentRequest: {
+		userid: payload.user_id,
+		contentid: payload.content_id
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="GetUserContent" doc:name="Consume" doc:id="66e3599b-d1fd-43d8-bed9-58a662a5b911" config-ref="Web_Service_Consumer_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="e829786e-32ed-43a2-9cab-729ea8ace862" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://www.example.com/UserContent
+---
+{
+	content: payload.body.ns0#GetUserContentResponse.content default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

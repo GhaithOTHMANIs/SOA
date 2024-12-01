@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="workflow" format="json">
+      <types:shape format="weave" example="examples/loginInput.json"><![CDATA[%dw 2.0
+
+type workflow = {|
+  login: String, 
+  password: String
+|} {"example": "{\\\"login\\\":\\\"admin\\\",\\\"password\\\":\\\"admin\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="workflow2" format="json">
+      <types:shape format="weave" example="examples/addContentInput.json"><![CDATA[%dw 2.0
+
+type workflow2 = {|
+  php_code: String, 
+  user_id: String
+|} {"example": "{\\\"php_code\\\":\\\"gfgfg\\\",\\\"user_id\\\":\\\"1\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="workflow3" format="json">
+      <types:shape format="weave" example="examples/getContentInput.json"><![CDATA[%dw 2.0
+
+type workflow3 = {|
+  user_id: String, 
+  content_id: String
+|} {"example": "{\\\"user_id\\\":\\\"2\\\",\\\"content_id\\\":\\\"6\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="workflow4" format="json">
+      <types:shape format="weave" example="examples/getContentOutput.json"><![CDATA[%dw 2.0
+
+type workflow4 = {| content: String |} {"example": "{\\\"content\\\":\\\"example data\\\"}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#fb054313-226b-47a1-97ea-ccbf5781e834">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="workflow"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="workflow"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#31bbe38b-b49d-4910-8c9e-1c75ded7871d">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="workflow2"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="workflow2"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e6401c6b-efea-45cb-8b4d-f1de7ce05af4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="workflow3"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e829786e-32ed-43a2-9cab-729ea8ace862">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="workflow4"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
