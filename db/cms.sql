@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 03, 2024 at 09:06 PM
+-- Generation Time: Dec 04, 2024 at 03:29 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,41 +29,57 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `content` (
   `id` int(11) NOT NULL,
-  `data` varchar(255) NOT NULL
+  `php_code` varchar(255) NOT NULL,
+  `user_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `content`
 --
 
-INSERT INTO `content` (`id`, `data`) VALUES
-(1, 'The Great Gatsby'),
-(2, 'The Great Gatsby'),
-(3, 'The Great Gatsby'),
-(4, 'The Great Gatsby'),
-(5, 'This is a sample body for the content.');
+INSERT INTO `content` (`id`, `php_code`, `user_id`) VALUES
+(1, 'helo', '1'),
+(2, 'helo', '1'),
+(3, 'helo', '1'),
+(5, 'helo', '2'),
+(6, 'mew', '2'),
+(7, 'wawa', '2'),
+(8, 'wawa', '2'),
+(9, 'wawa', '2'),
+(13, 'gfgfg', '1'),
+(14, 'gfgfg', '1'),
+(15, 'hello', '1'),
+(16, 'hello', '1'),
+(17, 'hello', '1'),
+(18, 'hello', '1'),
+(19, 'hello', '1'),
+(20, 'hello', '1'),
+(21, 'hello', '1'),
+(22, 'hello', '1'),
+(23, 'hello', '1'),
+(24, 'hello', '1');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `utilisateur`
+-- Table structure for table `user_cms`
 --
 
-CREATE TABLE `utilisateur` (
+CREATE TABLE `user_cms` (
   `id` varchar(255) NOT NULL,
-  `nom` varchar(255) DEFAULT NULL,
-  `prenom` varchar(255) DEFAULT NULL,
   `login` varchar(255) DEFAULT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `utilisateur`
+-- Dumping data for table `user_cms`
 --
 
-INSERT INTO `utilisateur` (`id`, `nom`, `prenom`, `login`, `password`) VALUES
-('1', 'ghaith', 'ghaith', 'ghaith', 'ghaith'),
-('2', 'admin', 'admin', 'admin', 'admin');
+INSERT INTO `user_cms` (`id`, `login`, `password`, `first_name`, `last_name`) VALUES
+('1', 'ghaith', 'ghaith', NULL, NULL),
+('2', 'admin', 'admin', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -73,12 +89,13 @@ INSERT INTO `utilisateur` (`id`, `nom`, `prenom`, `login`, `password`) VALUES
 -- Indexes for table `content`
 --
 ALTER TABLE `content`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `utilisateur`
+-- Indexes for table `user_cms`
 --
-ALTER TABLE `utilisateur`
+ALTER TABLE `user_cms`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `login` (`login`);
 
@@ -90,7 +107,17 @@ ALTER TABLE `utilisateur`
 -- AUTO_INCREMENT for table `content`
 --
 ALTER TABLE `content`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `content`
+--
+ALTER TABLE `content`
+  ADD CONSTRAINT `content_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_cms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
